@@ -1,0 +1,40 @@
+
+
+
+
+
+
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import Airtable from 'airtable';
+let apiKey = import.meta.env.AIRTABLE_API_KEY;  
+let dbID = import.meta.env.AIRTABLE_DB_ID;
+let airtable = new Airtable({apiKey}).base(dbID);
+let elements = await airtable('destinatario').select({
+  view: 'Grid view'
+}).firstPage();
+const destinatarioitems = elements.map((record) => ({
+  params: { id: record.id },
+  props: {
+    ...record.fields
+  }
+}));
+---
+
+<BaseLayout title="Homepage">
+<h1>Actividades extraescolares</h1>
+<div class="list-of-destinatarios">
+  {destinatarioitems && destinatarioitems.map((item) => (
+    <div class="destinatario-preview">
+      <a href={`/destinatarios/${item.params.id}`}>
+        <div class="destinatario-picture">
+        <img src={item.props.Attachments[0].thumbnails.large.url} />
+        </div>
+      </a>
+      <div class="title">
+        {item.props.Name}
+      </div>
+    </div>
+  ))}
+</div>
+</BaseLayout>
